@@ -47,8 +47,33 @@
       <small></small>
     </div>
   </div>
+<!-- 
+  <form method="POST" action="/">
+    {{ form.hidden_tag() }}
+    {{ form.name.label }} {{ form.name(size=20) }}
+    <br/>
+    {{ form.age.label }} {{ form.age(size=3) }}
+    <input type="submit" value="Go">
+</form>
+ -->
+
+ <form method="POST" action="/">
+  {{ form.csrf_token }}
 
 
+ {{ form.name }}
+
+
+ {{ form.submit }}
+
+</form>
+
+<!-- <input id = "name" name = "name" type = "text" value = "" />
+ -->
+
+
+
+<!-- 
 <form>
   <div class="form-group row">
     <label for="vuln_name" class="col-sm-2 col-form-label">Vulnerability name:</label>
@@ -83,7 +108,7 @@
     <input type="file" class="form-control-file" id="exampleFormControlFile1">
   </div>
 
-</form>
+</form> -->
 
 
 
