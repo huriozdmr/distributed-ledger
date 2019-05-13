@@ -160,9 +160,10 @@ def mine():
 
     server = guided_tour_puzzle.GuidedTourPuzzle(guide_number,shared_keys,secret_key,timestamp,cli_addr)
     miner = guided_tour_puzzle.GuidedTourPuzzle(guide_number,shared_keys,secret_key,timestamp,cli_addr)
-    # validation(server,miner)
+    validation(server,miner)
 
-    
+    if validation:
+        pass
 
     # Forge the new Block by adding it to the tree
     #previous_hash = theLedger.hashing_block(last_block)
@@ -191,7 +192,7 @@ def validation(server,miner):
         True
 
     else:
-        print("Not validated")
+        False
 
 
 
@@ -230,9 +231,6 @@ def full_tree():
 
 
 
-@app.route('/profile', methods=['GET'])
-def view_profile():
-    return jsonify(new_client.view_profile()), 200
 
 
 if __name__ == '__main__':
