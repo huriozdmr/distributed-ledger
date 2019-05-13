@@ -17,7 +17,7 @@ class TheLedger():
 
         self.nodes = set()
         # Yeni eklenen vuln buraya gelir.
-        self.current_submits = []
+        self.submitList = []
 
         # Consensus dan sonra valid icine atilir. Tek olcak
         self.valid_submit = []
@@ -37,17 +37,17 @@ class TheLedger():
         '''
         block = {
             'index':
-            len(self.current_submits) + 1,
+            len(self.submitList) + 1,
             'proof':
             proof,
             'previous_hash':
-            previous_hash or self.hashing_block(self.current_submits[-1]),
+            previous_hash or self.hashing_block(self.submitList[-1]),
         }
 
-        self.current_submits.append(block)
+        self.submitList.append(block)
         return block
 
-    def new_submit(self, new_vuln):
+    def new_submit(self, valuesDict):
         '''
         Creates new submission process to vulnerability tree from a client
         cli_addr: client address that will add a new vulnerability to tree
@@ -55,21 +55,21 @@ class TheLedger():
 
         '''
 
-        new_vuln = vulnerability
+        # new_vuln = vulnerability
 
-        self.current_submits.append({
-            "vuln_name": new_vuln.vuln_name,
-            "type": new_vuln.vuln_type,
-            "description": new_vuln.short_descr,
-            "CVSS": new_vuln.CVSS,
-            "platform": new_vuln.platform,
+        self.submitList.append({
+            "vuln_name": valuesDict.vuln_name,
+            "type": valuesDict.vuln_type,
+            "description": valuesDict.short_descr,
+            "CVSS": valuesDict.CVSS,
+            "platform": valuesDict.platform,
         })
 
         return self.last_block['index'] + 1
 
     # Returns the index of last block in the tree
     def last_block(self):
-        return self.current_submits[-1]
+        return self.submitList[-1]
 
     def hashing_block(block):
         '''
@@ -103,7 +103,6 @@ app = Flask(__name__, template_folder='Content')
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 csrf.init_app(app)
-
 
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
@@ -192,16 +191,22 @@ def validation(server, miner):
 class SubmitForm(Form):
     name = TextField("Name Of Student",
                      [validators.Required("Please enter  your name.")])
-    submit = SubmitField("Send")
 
 
 @app.route('/new-submit', methods=['GET', 'POST'])
-def new_submit():
+def new_submit_form():
 
     form = SubmitForm()
+    print(request, "\n\n\n")
 
     if request.method == "POST":
-        print("\n\n\n\n", form)
+
+        vuln_name = request.form["name"]
+
+        # TODO VALIDATION
+
+        theLedger.new_submit({vuln_name:"vuln_name",types,desc,cvss,platform})
+        
 
         # values = request.get_json()
 
@@ -214,11 +219,11 @@ def new_submit():
         #                              values['description'], values['CVSS'],
         #                              values['platform'])
 
-        message = "The new submit will be added to Tree" + index
-        response = {'message': message}
+        # message = "The new submit will be added to Tree" + index
+        # response = {'message': message}
         return jsonify(response), 201
     else:
-        return render_template('submit-request.html', form=form)
+        return render_template('submit-request.html', form=form, msg)
 
 
 @app.route('/vulnerability-tree', methods=['GET'])
@@ -233,8 +238,6 @@ def full_tree():
 
 
 @app.route('/vulnerability-detail', methods=['GET'])
-
-
 @app.route('/profile', methods=['GET'])
 def view_profile():
     return jsonify(new_client.view_profile()), 200
