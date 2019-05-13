@@ -150,6 +150,7 @@ def mine():
         shared_keys.append(shrd_key)
         i += 1
 
+<<<<<<< HEAD
     server = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys,
                                                  secret_key, timestamp,
                                                  cli_addr)
@@ -158,6 +159,15 @@ def mine():
                                                 cli_addr)
     # validation(server,miner)
 
+=======
+    server = guided_tour_puzzle.GuidedTourPuzzle(guide_number,shared_keys,secret_key,timestamp,cli_addr)
+    miner = guided_tour_puzzle.GuidedTourPuzzle(guide_number,shared_keys,secret_key,timestamp,cli_addr)
+    validation(server,miner)
+
+    if validation:
+        pass
+
+>>>>>>> bfd6c6fcd954aad4afa61392335a38f17686a827
     # Forge the new Block by adding it to the tree
     #previous_hash = theLedger.hashing_block(last_block)
     previous_hash = 9
@@ -181,7 +191,7 @@ def validation(server, miner):
         True
 
     else:
-        print("Not validated")
+        False
 
 
 class SubmitForm(Form):
@@ -228,9 +238,15 @@ def full_tree():
 
 
 @app.route('/vulnerability-detail', methods=['GET'])
+<<<<<<< HEAD
 @app.route('/profile', methods=['GET'])
 def view_profile():
     return jsonify(new_client.view_profile()), 200
+=======
+
+
+
+>>>>>>> bfd6c6fcd954aad4afa61392335a38f17686a827
 
 
 if __name__ == '__main__':
