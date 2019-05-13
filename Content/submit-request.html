@@ -32,6 +32,8 @@
         <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Clients</a>
       </li>
     </ul>
+
+
     <form class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="search" placeholder="Search a vulnerability" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search </button>
@@ -47,19 +49,10 @@
       <small></small>
     </div>
   </div>
-<!-- 
-  <form method="POST" action="/">
-    {{ form.hidden_tag() }}
-    {{ form.name.label }} {{ form.name(size=20) }}
-    <br/>
-    {{ form.age.label }} {{ form.age(size=3) }}
-    <input type="submit" value="Go">
-</form>
- -->
 
- <form method="POST" action="/">
+
+ <form method="POST" action="/" role="form">
   {{ form.csrf_token }}
-
 
  {{ form.name }}
 
@@ -67,9 +60,6 @@
  {{ form.submit }}
 
 </form>
-
-<!-- <input id = "name" name = "name" type = "text" value = "" />
- -->
 
 
 
