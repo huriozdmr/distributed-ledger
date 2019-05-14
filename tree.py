@@ -26,8 +26,8 @@ class Tree ():
 
 
     def searching_tree(self,Form):
-        choices = self.vul_tree
-        select = SelectField('Search for vulnerability:', choices=self.vul_tree)
+        choices = self.vuln_tree
+        select = SelectField('Search for vulnerability:', choices=self.vuln_tree)
         search = StringField('')
     
 

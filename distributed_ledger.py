@@ -19,7 +19,7 @@ class TheLedger():
 
         self.nodes = set()
         # Yeni eklenen vuln buraya gelir.
-        self.submitList = [{"vuln_name":"", "types":"","description":"", "platform":""},{"vuln_name":""}]
+        self.submitList = [{"vuln_name":"", "types":"","description":"", "platform":""}]
 
         self.blockList = []
 
@@ -162,7 +162,8 @@ def mine():
 
 
     if validation:
-        if (block['submit']['types'] == "A0"):
+        submit= theLedger.submitList[-1]
+        if (submit['types'] == "A0"):
             submit= theLedger.new_submit()
             new_tree.vuln_tree["A0"].append(submit)
 
