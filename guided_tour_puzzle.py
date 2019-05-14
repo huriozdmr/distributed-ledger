@@ -28,7 +28,7 @@ class GuidedTourPuzzle(object):
         self.Ax = client_addr
 
         # Generated hash values 
-        self.hashes=[]
+        self.hashes=[0,1]
 
         # Shared secret keys: 
         self.shared_keys= shared_keys
@@ -48,7 +48,7 @@ class GuidedTourPuzzle(object):
 
     def first_server_request(self, h_zero):
 
-
+        self.hashes=[]
         h_zero= hashlib.sha256(self.Ax + self.guide_number + self.timestamp + self.secret_key)
         hashes.append(h_zero)
 
@@ -85,9 +85,8 @@ class GuidedTourPuzzle(object):
 
 
     def result_pair(self):
-        length = len(self.hashes)
-        self.last_pair = [self.hashes[0], self.hashes[length-1]]
-        return last_pair
+        self.last_pair = [self.hashes[0], self.hashes[-1]]
+        return self.last_pair
         
 
     def result_proof(self,proof):

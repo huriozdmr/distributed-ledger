@@ -1,4 +1,4 @@
-import hashlib, json, time, flask, requests, random, os, binascii
+import hashlib, json, time, flask, requests, random, os, binascii 
 import guided_tour_puzzle, client, vulnerability, tree
 from uuid import uuid4
 from urllib.parse import urlparse
@@ -7,8 +7,10 @@ from flask import Flask, jsonify
 from flask_wtf import Form
 from wtforms import TextField, IntegerField, TextAreaField, SubmitField, RadioField, SelectField
 from wtforms import validators, ValidationError
-
+import queue
 from flask_wtf.csrf import CSRFProtect
+
+
 csrf = CSRFProtect()
 
 
@@ -17,10 +19,9 @@ class TheLedger():
 
         self.nodes = set()
         # Yeni eklenen vuln buraya gelir.
-        self.submitList = []
+        self.submitList = [{"vuln_name":"", "types":"","description":"", "platform":""},{"vuln_name":""}]
 
-        # Consensus dan sonra valid icine atilir. Tek olcak
-        self.valid_submit = []
+        self.blockList = []
 
         # Create the genesis block to seed our initial block
         self.create_new_block(previous_hash=1, proof=100)
@@ -36,15 +37,13 @@ class TheLedger():
 
         '''
         block = {
-            'index':
-            len(self.submitList) + 1,
-            'proof':
-            proof,
-            'previous_hash':
-            previous_hash or self.hashing_block(self.submitList[-1]),
+            'index': len(self.blockList) + 1,
+            'proof': proof,
+            'previous_hash': previous_hash or self.hashing_block(self.blockList[-1]),
+            'submit': self.submitList[-1]
         }
 
-        self.submitList.append(block)
+        self.blockList.append(block)
         return block
 
     def new_submit(self, valuesDict):
@@ -54,22 +53,20 @@ class TheLedger():
         block_id: block id number that will be added to tree
 
         '''
-
-        # new_vuln = vulnerability
-
-        self.submitList.append({
+        submit ={
             "vuln_name": valuesDict.vuln_name,
-            "type": valuesDict.vuln_type,
-            "description": valuesDict.short_descr,
-            "CVSS": valuesDict.CVSS,
+            "types": valuesDict.types,
+            "description": valuesDict.descr,
             "platform": valuesDict.platform,
-        })
+        }
+        self.submitList.append(submit)
 
-        return self.last_block['index'] + 1
-
+        return submit
+        #return self.last_block['index'] + 1
+    
     # Returns the index of last block in the tree
     def last_block(self):
-        return self.submitList[-1]
+        return self.blockList[-1]
 
     def hashing_block(block):
         '''
@@ -92,11 +89,11 @@ class TheLedger():
         self.nodes.add(parsed_url.netloc)
 
 
-##########################################################
-##########################################################
-# FLASK #
-##########################################################
-##########################################################
+####################################################################################################################
+####################################################################################################################
+                                                    # FLASK #
+####################################################################################################################
+####################################################################################################################
 
 # Instantiate our Node
 app = Flask(__name__, template_folder='Content')
@@ -154,28 +151,32 @@ def mine():
         shared_keys.append(shrd_key)
         i += 1
 
-    server = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys,
-                                                 secret_key, timestamp,
-                                                 cli_addr)
-    miner = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys,
-                                                secret_key, timestamp,
-                                                cli_addr)
-    # validation(server,miner)
+    server = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys, secret_key,timestamp, cli_addr)
+    miner = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys, secret_key, timestamp, cli_addr)
+    validation(server,miner)
 
-    # Forge the new Block by adding it to the tree
     #previous_hash = theLedger.hashing_block(last_block)
     previous_hash = 9
     proof = miner.proof
     block = theLedger.create_new_block(proof, previous_hash)
 
-    response = {
-        'message': "New Block Forged",
-        'index': block['index'],
-        'proof': block['proof'],
-        'previous_hash': block['previous_hash'],
-    }
-    return jsonify(response), 200
 
+    if validation:
+        if (block['submit']['types'] == "A0"):
+            submit= theLedger.new_submit()
+            new_tree.vuln_tree["A0"].append(submit)
+
+
+            message = "The last vulnerability was validated and added to the vulnerability tree "
+            response = {'message': message}
+            return jsonify(response), 201
+        
+        else: 
+            return render_template('mine.html')
+
+        
+
+        
 
 def validation(server, miner):
     server_lp = server.result_pair()
@@ -189,41 +190,35 @@ def validation(server, miner):
 
 
 class SubmitForm(Form):
-    name = TextField("Name Of Student",
-                     [validators.Required("Please enter  your name.")])
+    vuln_name = TextField("blabla", validators= [validators.Required("Please enter vuln name.")])
+    types= TextField("blabla", validators= [validators.Required("Please enter vuln type.")])
+    description= TextField("blabla", validators= [validators.Required("Please enter  description.")])
+    platform= TextField ("blabla", validators= [validators.Required("Please enter the platform.")])
 
 
 @app.route('/new-submit', methods=['GET', 'POST'])
 def new_submit_form():
 
     form = SubmitForm()
-    print(request, "\n\n\n")
 
     if request.method == "POST":
 
-        vuln_name = request.form["name"]
+        vuln_name = request.form["vuln_name"]
+        types= request.form["types"]
+        description=request.form["description"]
+        platform=request.form["platform"]
+    
 
-        # TODO VALIDATION
+        theLedger.new_submit({vuln_name:"vuln_name",types:"types",description : "description",
+        platform:"platform"})
 
-        theLedger.new_submit({vuln_name:"vuln_name",types,desc,cvss,platform})
-        
-
-        # values = request.get_json()
-
-        # required = ['vuln_name', 'type', 'description', 'CVSS', 'platform']
-        # if not all(k in values for k in required):
-        #     return 'Missing values', 400
-
-        # # Create a new submit process
-        # index = theLedger.new_submit(values['vuln_name'], values['type'],
-        #                              values['description'], values['CVSS'],
-        #                              values['platform'])
-
-        # message = "The new submit will be added to Tree" + index
-        # response = {'message': message}
+        message = "The new submit will be added to Vulnerability Pool to be validated"
+        response = {'message': message}
         return jsonify(response), 201
+
+
     else:
-        return render_template('submit-request.html', form=form, msg)
+        return render_template('submit-request.html', form=form)
 
 
 @app.route('/vulnerability-tree', methods=['GET'])
@@ -236,11 +231,6 @@ def full_tree():
     }
     return jsonify(response), 200
 
-
-@app.route('/vulnerability-detail', methods=['GET'])
-@app.route('/profile', methods=['GET'])
-def view_profile():
-    return jsonify(new_client.view_profile()), 200
 
 
 if __name__ == '__main__':

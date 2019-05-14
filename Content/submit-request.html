@@ -2,7 +2,6 @@
 <html>
 <head>
 	<meta charset="utf-8">
-
 	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<script src="js/bootstrap.min.js"></script>
 	<script type="js/jquery-3.4.0.min.js"></script>
@@ -51,19 +50,14 @@
   </div>
 
 
- <!-- <form method="POST" action="/" role="form">
 
-
- <input type="submit" value="Go">
-</form>
- -->
 
 
 
 <form method="POST" action="#" role="form">
 
     {{ form.csrf_token }}
-    {{ form.name }}
+    {{ form.vuln_name }}
 
   <div class="form-group row">
     <label for="vuln_name" class="col-sm-2 col-form-label">Vulnerability name:</label>
@@ -73,16 +67,37 @@
   </div>
 
   <div class="form-group row">
-    <label for="inputPassword3" class="col-sm-2 col-form-label">Description</label>
+    <label for="types" class="col-sm-2 col-form-label">Vulnerability Type:</label>
     <div class="col-sm-10">
-    <textarea class="form-control" id="exampleFormControlTextarea1" placeholder="Enter a short description about vulnerability" ></textarea>
+    <select class="form-control" id="types" placeholder="Enter the vulnerability type" >
+      <option>A1 : Injection</option>
+      <option>A2 : Broken Authentication</option>
+      <option>A3 : Sensitive Data Exposure</option>
+      <option>A4 : XML External Entities</option>
+      <option>A5 : Broken Access Control</option>
+      <option>A6 : Security Misconfiguration</option>
+      <option>A7 : XSS</option>
+      <option>A8 : Insecure Deserialization</option>
+      <option>A9 : Using Components with Known Vulnerabilities</option>
+      <option>A10: Insufficient Logging and Monitoring</option>
+
+   </select>
+  </div>
+
+
+  <div class="form-group row">
+    <label for="description" class="col-sm-2 col-form-label">Short Description:</label>
+    <div class="col-sm-10">
+    <textarea class="form-control" id="description" placeholder="Enter a short description about vulnerability" ></textarea>
     </div>
   </div>
  
+  </div>
+
    <div class="form-group row">
-    <label for="inputPassword3" class="col-sm-2 col-form-label">Platform</label>
+    <label for="platform" class="col-sm-2 col-form-label">Platform</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="inputPassword3" placeholder="Enter affected platform for example PHP">
+      <input type="text" class="form-control" id="platform" placeholder="Enter affected platform for example PHP">
     </div>
   </div>
 
@@ -93,15 +108,7 @@
     </div>
   </div>
 
-    <div class="form-group">
-    <label for="exampleFormControlFile1">Example file input</label>
-    <input type="file" class="form-control-file" id="exampleFormControlFile1">
-  </div>
-  
-
 </form>
-
-
 
 
 </body>
@@ -117,14 +124,15 @@
           "name": "ramazan",
           "createdAt": "1235123"
         },
-        "asdasdsa",
-        "asdasd"
+        
       ],
+
       "A2": [
         "dasd",
         "asdasd"
       ]
     }
+
   },
   {
     "blockIndexHash": {
