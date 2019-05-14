@@ -12,14 +12,14 @@ from flask_wtf.csrf import CSRFProtect
 
 
 csrf = CSRFProtect()
-
+my_tree=tree.Tree()
 
 class TheLedger():
     def __init__(self):
 
         self.nodes = set()
         # Yeni eklenen vuln buraya gelir.
-        self.submitList = [{"vuln_name":"", "types":"","description":"", "platform":""}]
+        self.submitList = [{"vuln_name":"xss injection", "types":"A7 : XSS","description":"blabla", "platform":"php"}]
 
         self.blockList = []
 
@@ -40,7 +40,7 @@ class TheLedger():
             'index': len(self.blockList) + 1,
             'proof': proof,
             'previous_hash': previous_hash or self.hashing_block(self.blockList[-1]),
-            'submit': self.submitList[-1]
+            'submit': self.submitList
         }
 
         self.blockList.append(block)
@@ -54,15 +54,15 @@ class TheLedger():
 
         '''
         submit ={
-            "vuln_name": valuesDict.vuln_name,
-            "types": valuesDict.types,
-            "description": valuesDict.descr,
-            "platform": valuesDict.platform,
+            "vuln_name": valuesDict["vuln_name"],
+            "types": valuesDict["types"],
+            "description": valuesDict["description"],
+            "platform": valuesDict["platform"],
         }
         self.submitList.append(submit)
 
         return submit
-        #return self.last_block['index'] + 1
+        
     
     # Returns the index of last block in the tree
     def last_block(self):
@@ -90,9 +90,7 @@ class TheLedger():
 
 
 ####################################################################################################################
-####################################################################################################################
                                                     # FLASK #
-####################################################################################################################
 ####################################################################################################################
 
 # Instantiate our Node
@@ -107,12 +105,12 @@ node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the objects
 theLedger = TheLedger()
 new_client = client.Client()
-new_tree = tree.Tree()
+my_tree = tree.Tree()
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    search = new_tree.searching_tree(request.form)
+    search = my_tree.searching_tree(request.form)
     if request.method == 'POST':
         return search_results(search)
 
@@ -122,7 +120,7 @@ def index():
 @app.route('/results')
 def search_results(search):
     results = []
-    for key, value in new_tree.vul_tree.items():
+    for key, value in my_tree.vul_tree.items():
         for val in value:
             if search in val:
                 results.append(val)
@@ -135,16 +133,17 @@ def search_results(search):
         return render_template('results.html', results=results)
 
 
-@app.route('/mine', methods=['GET'])
+@app.route('/mine', methods=['GET', 'POST'])
 def mine():
+    form = Form()
+    if request.method == "GET":
+        return render_template('mine.html', form=form)
     last_block = theLedger.last_block()
-    #last_proof = last_block['proof']
     cli_addr = new_client.client_addr
     shared_keys = []
     timestamp = time.time()
     guide_number = random.randint(1, 10)
     secret_key = binascii.hexlify(os.urandom(24))
-
     # Guide sayisi kadar shared keys olusturulur
     for i in range(guide_number):
         shrd_key = binascii.hexlify(os.urandom(24))
@@ -153,42 +152,40 @@ def mine():
 
     server = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys, secret_key,timestamp, cli_addr)
     miner = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys, secret_key, timestamp, cli_addr)
+
+    #miner_proof = miner.result_proof()
+    
     validation(server,miner)
 
+    print(last_block)
     #previous_hash = theLedger.hashing_block(last_block)
     previous_hash = 9
-    proof = miner.proof
-    block = theLedger.create_new_block(proof, previous_hash)
+    block = theLedger.create_new_block(miner.proof, previous_hash)
 
 
     if validation:
         submit= theLedger.submitList[-1]
-        if (submit['types'] == "A0"):
-            submit= theLedger.new_submit()
-            new_tree.vuln_tree["A0"].append(submit)
-
-
+        
+        if (submit['types'] == "A7 : XSS"):
+            #submit= theLedger.new_submit()
+            my_tree.vuln_tree["A0"].append(submit)
+            print(my_tree.vuln_tree)
             message = "The last vulnerability was validated and added to the vulnerability tree "
             response = {'message': message}
             return jsonify(response), 201
         
         else: 
-            return render_template('mine.html')
+            return render_template('mine.html', form=form)
 
-        
 
-        
 
 def validation(server, miner):
-    server_lp = server.result_pair()
-    miner_lp = miner.result_pair()
-
-    if (server_lp[0] == miner_lp[0] & server_lp[1] == miner_lp[1]):
-        True
+    print(miner.proof)
+    if (server.proof == miner.proof):
+        print ("block validated")
 
     else:
         False
-
 
 class SubmitForm(Form):
     vuln_name = TextField("blabla", validators= [validators.Required("Please enter vuln name.")])
@@ -210,8 +207,13 @@ def new_submit_form():
         platform=request.form["platform"]
     
 
-        theLedger.new_submit({vuln_name:"vuln_name",types:"types",description : "description",
-        platform:"platform"})
+        theLedger.new_submit({
+            "vuln_name": vuln_name,
+            "types": types,
+            "description": description,
+            "platform": platform
+        })
+
 
         message = "The new submit will be added to Vulnerability Pool to be validated"
         response = {'message': message}
@@ -227,8 +229,8 @@ def full_tree():
 
     # Dict formatinda bu sekilde calisir mi?
     response = {
-        'tree': new_tree.vul_tree,
-        'length': len(new_tree.vul_tree),
+        'tree': my_tree.vul_tree,
+        'length': len(my_tree.vul_tree),
     }
     return jsonify(response), 200
 

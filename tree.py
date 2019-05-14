@@ -18,7 +18,7 @@ class Tree ():
         A10: Insufficient Logging & Monitoring
 
         ''' 
-        self.vuln_tree = { "AO": [], "A1" : [] , "A2": [],   "A3": [] , 
+        self.vuln_tree = { "A0": ["merhaba","nasılsın"], "A1" : [] , "A2": [],   "A3": [] , 
                             "A4" : [],  "A5": [],   "A6": [],
                             "A7" : [] , "A8": [],   "A9": [] , 
                             "A10": []

@@ -58,19 +58,19 @@
 <form method="POST" action="#" role="form">
 
     {{ form.csrf_token }}
-    {{ form.vuln_name }}
+    
 
   <div class="form-group row">
     <label for="vuln_name" class="col-sm-2 col-form-label">Vulnerability name:</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="vuln_name" placeholder="Give a name your vulnerability">
+      <input type="text" class="form-control" name="vuln_name" id="vuln_name" placeholder="Give a name your vulnerability">
     </div>
   </div>
 
   <div class="form-group row">
     <label for="types" class="col-sm-2 col-form-label">Vulnerability Type:</label>
-    <div class="col-sm-10">
-    <select class="form-control" id="types" placeholder="Enter the vulnerability type" >
+    <div class="col-sm-10"> 
+    <select class="form-control" name="types" id="types" placeholder="Enter the vulnerability type" >
       <option>A1 : Injection</option>
       <option>A2 : Broken Authentication</option>
       <option>A3 : Sensitive Data Exposure</option>
@@ -84,12 +84,12 @@
 
    </select>
   </div>
-
+</div>
 
   <div class="form-group row">
     <label for="description" class="col-sm-2 col-form-label">Short Description:</label>
     <div class="col-sm-10">
-    <textarea class="form-control" id="description" placeholder="Enter a short description about vulnerability" ></textarea>
+    <textarea class="form-control" name="description" id="description" placeholder="Enter a short description about vulnerability" ></textarea>
     </div>
   </div>
  
@@ -98,7 +98,7 @@
    <div class="form-group row">
     <label for="platform" class="col-sm-2 col-form-label">Platform</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="platform" placeholder="Enter affected platform for example PHP">
+      <input type="text" class="form-control" name="platform" id="platform" placeholder="Enter affected platform for example PHP">
     </div>
   </div>
 

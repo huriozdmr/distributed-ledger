@@ -28,7 +28,7 @@ class GuidedTourPuzzle(object):
         self.Ax = client_addr
 
         # Generated hash values 
-        self.hashes=[0,1]
+        self.hashes=[]
 
         # Shared secret keys: 
         self.shared_keys= shared_keys
@@ -43,19 +43,21 @@ class GuidedTourPuzzle(object):
 
         self.last_pair = []
 
+        self.first_server_request()
+        self.puzzle_solving()
+        self.result_pair()
+        self.result_proof()
+
 
     # Initial puzzle generation 
 
-    def first_server_request(self, h_zero):
-
+    def first_server_request(self):
         self.hashes=[]
-        h_zero= hashlib.sha256(self.Ax + self.guide_number + self.timestamp + self.secret_key)
-        hashes.append(h_zero)
-
-        return h_zero
+        h_zero= hashlib.sha256(str(str(self.Ax) + str(self.guide_number) + str(self.timestamp) + str(self.secret_key)).encode("utf-8"))
+        self.hashes.append(h_zero)
 
 
-    def guide_tour_order(guided_tour):
+    def guide_tour_order(self):
 
         ''' Rastgele belirlediğim toplam guide sayısı kadar guide üretecek. 
             Ürettiği guide ise sıralı bir şekilde guided_tour içinde duracak. 
@@ -63,25 +65,25 @@ class GuidedTourPuzzle(object):
             Bunlar üretildiği sıra ile guide_tour dizisinde bekliyor. 
         
         '''
-        for i in guide_number:
+        for i in range(self.guide_number):
             guide_x = random.randint(1, 10)
-            guided_tour.append(guide_x)
+            self.guided_tour.append(guide_x)
             i+=1
-        return guided_tour
+        return self.guided_tour
 
 
 
     def puzzle_solving(self):
         # önce tour order belirlenir.
-        guided_tour= guide_tour_order()
+        guided_tour= self.guide_tour_order()
 
-        for i in range(1, guide_number):
+        for i in range(1, self.guide_number):
             # Dizinin ilk elemanı o anki guide oluyor.
             guide_now= guided_tour[i]
             # Bir sonraki hashi hesaplarken hashes[0] değerini alacak. i dediğim değer de bulunduğu guide indexi
-            next_hash= hashlib.sha256(hashes[i-1] + i + self.guide_number + 
-            self.Ax + self.timestamp + self.secret_key)
-            hashes.append(next_hash)
+            next_hash= hashlib.sha256(str(str(self.hashes[i-1]) + str(i) + str(self.guide_number) + 
+            str(self.Ax) + str(self.timestamp) + str(self.secret_key)).encode('utf-8'))
+            self.hashes.append(next_hash)
 
 
     def result_pair(self):
@@ -89,7 +91,6 @@ class GuidedTourPuzzle(object):
         return self.last_pair
         
 
-    def result_proof(self,proof):
-        proof = last_pair[0] + last_pair [1]
-        proof = self.proof
-        return proof
+    def result_proof(self):
+        self.proof =str(str(self.last_pair[0]) + str(self.last_pair[1]))
+

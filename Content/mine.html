@@ -24,7 +24,7 @@
         <a class="nav-link" href="#">Vulnerability Tree<span class="sr-only">(current)</span></a>
       </li>
        <li class="nav-item">
-        <a class="nav-link" href="/new-submit">Submit Request</a>
+        <a class="nav-link" href="/new-submit">Submit</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/mine">Mine</a>
@@ -41,7 +41,14 @@
 </nav>
 
 
-
+<form method="POST" action="#" role="form" class="container">
+{{ form.csrf_token }}
+  <div class="jumbotron">
+    <h1>Mining</h1>
+    <p class="lead">Please click on the button to mine and validate a vulnerability from the vulnerability pool!</p>
+    <button class="btn btn-lg btn-primary" type="submit">MINE &raquo;</button>
+  </div>
+</form>
 
 
 </body>
