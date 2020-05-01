@@ -3,7 +3,7 @@ from wtforms import Form, StringField, SelectField
 
 class Tree ():
     def __init__(self):
-        ''' Tree'yi oluşturmak için sınıflandırma: 
+        ''' 
         OWASP TOP TEN
         A0 : Genesis
         A1 : Injection
@@ -18,10 +18,9 @@ class Tree ():
         A10: Insufficient Logging & Monitoring
 
         ''' 
-        self.vuln_tree = { "A0": ["merhaba","nasılsın"], "A1" : [] , "A2": [],   "A3": [] , 
-                            "A4" : [],  "A5": [],   "A6": [],
-                            "A7" : [] , "A8": [],   "A9": [] , 
-                            "A10": []
+        self.vuln_tree = { "A0": [], "A1" : [] , "A2": [], "A3": [] ,
+         "A4" : [], "A5": [], "A6": [], "A7" : [] , 
+         "A8": [],   "A9": [] , "A10": []
                          }
 
 

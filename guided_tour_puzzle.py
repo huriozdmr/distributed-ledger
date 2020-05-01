@@ -32,17 +32,11 @@ class GuidedTourPuzzle(object):
 
         # Shared secret keys: 
         self.shared_keys= shared_keys
-        
         #Secret key: K 
         self. secret_key = secret_key
-
-        # Bir puzzle solving için kullanılacak timestamp
         self.timestamp = timestamp
-
         self.proof = 0
-
         self.last_pair = []
-
         self.first_server_request()
         self.puzzle_solving()
         self.result_pair()
@@ -59,12 +53,6 @@ class GuidedTourPuzzle(object):
 
     def guide_tour_order(self):
 
-        ''' Rastgele belirlediğim toplam guide sayısı kadar guide üretecek. 
-            Ürettiği guide ise sıralı bir şekilde guided_tour içinde duracak. 
-            Örneğin N = 5 için rastgele üretilen guide_x'ler : G1 , G4, G1 , G10, G0
-            Bunlar üretildiği sıra ile guide_tour dizisinde bekliyor. 
-        
-        '''
         for i in range(self.guide_number):
             guide_x = random.randint(1, 10)
             self.guided_tour.append(guide_x)
@@ -74,13 +62,13 @@ class GuidedTourPuzzle(object):
 
 
     def puzzle_solving(self):
-        # önce tour order belirlenir.
+        
         guided_tour= self.guide_tour_order()
 
         for i in range(1, self.guide_number):
-            # Dizinin ilk elemanı o anki guide oluyor.
+            
             guide_now= guided_tour[i]
-            # Bir sonraki hashi hesaplarken hashes[0] değerini alacak. i dediğim değer de bulunduğu guide indexi
+            
             next_hash= hashlib.sha256(str(str(self.hashes[i-1]) + str(i) + str(self.guide_number) + 
             str(self.Ax) + str(self.timestamp) + str(self.secret_key)).encode('utf-8'))
             self.hashes.append(next_hash)

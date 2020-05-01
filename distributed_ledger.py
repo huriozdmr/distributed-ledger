@@ -1,32 +1,24 @@
 import hashlib, json, time, flask, requests, random, os, binascii 
-import guided_tour_puzzle, client, vulnerability, tree
+import guided_tour_puzzle, client,  tree
 from uuid import uuid4
-from urllib.parse import urlparse
 from flask import flash, render_template, request, redirect
 from flask import Flask, jsonify
 from flask_wtf import Form
 from wtforms import TextField, IntegerField, TextAreaField, SubmitField, RadioField, SelectField
 from wtforms import validators, ValidationError
-import queue
 from flask_wtf.csrf import CSRFProtect
 
-
 csrf = CSRFProtect()
-my_tree=tree.Tree()
 
 class TheLedger():
     def __init__(self):
 
         self.nodes = set()
-        # Yeni eklenen vuln buraya gelir.
-        self.submitList = [{"vuln_name":"xss injection", "types":"A7 : XSS","description":"blabla", "platform":"php"}]
-
+        self.submitList = []
         self.blockList = []
 
         # Create the genesis block to seed our initial block
         self.create_new_block(previous_hash=1, proof=100)
-
-        #self.timestamp = time()
 
     def create_new_block(self, proof, previous_hash=None):
         '''
@@ -39,7 +31,7 @@ class TheLedger():
         block = {
             'index': len(self.blockList) + 1,
             'proof': proof,
-            'previous_hash': previous_hash or self.hashing_block(self.blockList[-1]),
+            'previous_hash': previous_hash,
             'submit': self.submitList
         }
 
@@ -60,15 +52,13 @@ class TheLedger():
             "platform": valuesDict["platform"],
         }
         self.submitList.append(submit)
-
-        return submit
-        
+       
     
     # Returns the index of last block in the tree
     def last_block(self):
         return self.blockList[-1]
 
-    def hashing_block(block):
+    def hashing_block(self,block):
         '''
         Hashes the block with SHA 256 cryptographic algorithm.
 
@@ -79,28 +69,17 @@ class TheLedger():
         # Returnes a string object of double length, containing only hexadecimal digits
         return hashlib.sha256(ordered_block).hexdigest()
 
-    def register_node(self, address):
-        """
-        Add a new node to the list of nodes
-        for example : 'http://192.168.0.5:5000'
-        """
-
-        parsed_url = urlparse(address)
-        self.nodes.add(parsed_url.netloc)
 
 
-####################################################################################################################
-                                                    # FLASK #
-####################################################################################################################
+#####################################################################################
+                                    # FLASK PART #
+#####################################################################################
 
 # Instantiate our Node
 app = Flask(__name__, template_folder='Content')
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
 csrf.init_app(app)
-
-# Generate a globally unique address for this node
-node_identifier = str(uuid4()).replace('-', '')
 
 # Instantiate the objects
 theLedger = TheLedger()
@@ -138,7 +117,6 @@ def mine():
     form = Form()
     if request.method == "GET":
         return render_template('mine.html', form=form)
-    last_block = theLedger.last_block()
     cli_addr = new_client.client_addr
     shared_keys = []
     timestamp = time.time()
@@ -152,46 +130,75 @@ def mine():
 
     server = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys, secret_key,timestamp, cli_addr)
     miner = guided_tour_puzzle.GuidedTourPuzzle(guide_number, shared_keys, secret_key, timestamp, cli_addr)
-
-    #miner_proof = miner.result_proof()
     
     validation(server,miner)
 
-    print(last_block)
-    #previous_hash = theLedger.hashing_block(last_block)
-    previous_hash = 9
+    previous_hash = theLedger.hashing_block(theLedger.blockList[-1])
     block = theLedger.create_new_block(miner.proof, previous_hash)
-
+    theLedger.blockList.append(block)
+    print(theLedger.blockList)
 
     if validation:
         submit= theLedger.submitList[-1]
         
-        if (submit['types'] == "A7 : XSS"):
-            #submit= theLedger.new_submit()
-            my_tree.vuln_tree["A0"].append(submit)
+        if (submit['types'] == "A1 : Injection"):
+            my_tree.vuln_tree["A1"].append(submit)
             print(my_tree.vuln_tree)
-            message = "The last vulnerability was validated and added to the vulnerability tree "
-            response = {'message': message}
-            return jsonify(response), 201
+            return render_template('mine-success.html', form=form)
+            
+        elif(submit['types'] == "A2 : Broken Authentication" ):
+            my_tree.vuln_tree["A2"].append(submit)
+            return render_template('mine-success.html', form=form)
+
+        elif(submit['types'] == "A3 : Sensitive Data Exposure" ):
+            my_tree.vuln_tree["A3"].append(submit)
+            return render_template('mine-success.html', form=form)
+
+        elif(submit['types'] == "A4 : XML External Entities" ):
+            my_tree.vuln_tree["A4"].append(submit)
+            return render_template('mine-success.html', form=form)
+
+        elif(submit['types'] == "A5 : Broken Authentication" ):
+            my_tree.vuln_tree["A5"].append(submit)
+            return render_template('mine-success.html', form=form)
+
+        elif(submit['types'] == "A6 : Security Misconfiguration" ):
+            my_tree.vuln_tree["A6"].append(submit)
+            return render_template('mine-success.html', form=form)   
+
+        elif(submit['types'] == "A7 : XSS" ):
+            my_tree.vuln_tree["A7"].append(submit)
+            return render_template('mine-success.html', form=form)     
+
+        elif(submit['types'] == "A8 : Insecure Deserialization" ):
+            my_tree.vuln_tree["A8"].append(submit)
+            return render_template('mine-success.html', form=form)
+
+        elif(submit['types'] == "A9 : Using Components with Known Vulnerabilities" ):
+            my_tree.vuln_tree["A9"].append(submit)
+            return render_template('mine-success.html', form=form)    
         
-        else: 
-            return render_template('mine.html', form=form)
+        elif(submit['types'] == "A10: Insufficient Logging & Monitoring" ):
+            my_tree.vuln_tree["A10"].append(submit)
+            return render_template('mine-success.html', form=form)   
 
-
+    else: 
+        return render_template('mine.html', form=form)
+        
 
 def validation(server, miner):
     print(miner.proof)
     if (server.proof == miner.proof):
-        print ("block validated")
-
+        True
     else:
         False
 
+
 class SubmitForm(Form):
-    vuln_name = TextField("blabla", validators= [validators.Required("Please enter vuln name.")])
-    types= TextField("blabla", validators= [validators.Required("Please enter vuln type.")])
-    description= TextField("blabla", validators= [validators.Required("Please enter  description.")])
-    platform= TextField ("blabla", validators= [validators.Required("Please enter the platform.")])
+    vuln_name = TextField(" ", validators= [validators.DataRequired("Please enter vuln name.")])
+    types= TextField(" ", validators= [validators.DataRequired("Please enter vuln type.")])
+    description= TextField(" ", validators= [validators.DataRequired("Please enter  description.")])
+    platform= TextField (" ", validators= [validators.DataRequired("Please enter the platform.")])
 
 
 @app.route('/new-submit', methods=['GET', 'POST'])
@@ -214,25 +221,11 @@ def new_submit_form():
             "platform": platform
         })
 
+        print(theLedger.submitList)
 
-        message = "The new submit will be added to Vulnerability Pool to be validated"
-        response = {'message': message}
-        return jsonify(response), 201
-
-
+        return render_template('submit-success.html', form=form)
     else:
         return render_template('submit-request.html', form=form)
-
-
-@app.route('/vulnerability-tree', methods=['GET'])
-def full_tree():
-
-    # Dict formatinda bu sekilde calisir mi?
-    response = {
-        'tree': my_tree.vul_tree,
-        'length': len(my_tree.vul_tree),
-    }
-    return jsonify(response), 200
 
 
 
