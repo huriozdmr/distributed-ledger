@@ -1,4 +1,4 @@
-# Distributed Ledger-Based Vulnerability Database
+![](https://github.com/huriozdmr/distributed-ledger/blob/master/img/0.PNG)
 
 The aim of this project is to create distributed database that enable all users to add vulnerabilities under certain criteria when a vulnerability comes out. The cur-rent centralized database which is named National Vulnerability
 Database (NVD) is insufficient to include all vulnerabilities and store securely providing all security requirements. There are also many vulnerability database platforms such as exploit-db, OSVDB. As a result, Distributed Ledger based vulnerability database will provide more secure,
